@@ -1,0 +1,1609 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ever After ADHD Tracker — Amethyst Edition</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400;1,600&family=DM+Sans:ital,wght@0,300;0,400;0,500;0,700;1,300;1,400&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --terra:      #6b3fa0;
+    --terra-deep: #3d1f6e;
+    --terra-mid:  #4e2880;
+    --amber:      #c4a8ff;
+    --amber-dim:  rgba(196,168,255,0.28);
+    --amber-glow: rgba(196,168,255,0.08);
+    --cream:      #f5ede0;
+    --cream-dim:  rgba(245,237,224,0.55);
+    --sage:       #8fa882;
+    --teal:       #4a90b8;
+    --plum:       #dfc4ff;
+    --card-bg:    rgba(15,6,32,0.72);
+    --card-bg2:   rgba(10,4,22,0.82);
+    --radius:     14px;
+    --label:      rgba(196,168,255,0.85);
+  }
+
+  html { font-size: 16px; }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background-color: #5a2d8a;
+    background-image:
+      radial-gradient(ellipse 80% 55% at 50% -5%,  rgba(123,82,184,0.5)  0%, transparent 60%),
+      radial-gradient(ellipse 55% 40% at 85% 92%,  rgba(78,40,128,0.4)   0%, transparent 55%),
+      radial-gradient(ellipse 40% 30% at 10% 68%,  rgba(50,25,90,0.3)    0%, transparent 50%);
+    background-attachment: fixed;
+    color: var(--cream);
+    min-height: 100vh;
+  }
+
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: 0;
+    opacity: 0.5;
+  }
+
+  /* ── HEADER ── */
+  header {
+    position: relative;
+    z-index: 10;
+    background: linear-gradient(180deg, #1a0a28 0%, #2a1040 100%);
+    border-bottom: 1.5px solid var(--amber-dim);
+    padding: 2rem 2rem 1.5rem;
+    text-align: center;
+  }
+
+  header::before {
+    content: '';
+    position: absolute;
+    inset: 5px;
+    border: 1px solid rgba(196,168,255,0.1);
+    border-radius: 4px;
+    pointer-events: none;
+  }
+
+  .gold-divider {
+    display: block;
+    width: 100%;
+    height: 6px;
+    background: linear-gradient(to right,
+      rgba(196,168,255,0.3),
+      rgba(196,168,255,1) 20%,
+      rgba(210,180,255,1) 50%,
+      rgba(196,168,255,1) 80%,
+      rgba(196,168,255,0.3));
+    box-shadow: 0 2px 8px rgba(196,168,255,0.4);
+  }
+
+  .header-actions {
+    position: absolute;
+    top: 1.2rem;
+    right: 1.5rem;
+    display: flex;
+    gap: 0.5rem;
+  }
+
+  .btn-ghost {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.75rem;
+    font-weight: 500;
+    color: var(--amber);
+    background: transparent;
+    border: 1px solid var(--amber-dim);
+    border-radius: 6px;
+    padding: 0.42rem 1rem;
+    cursor: pointer;
+    transition: background 0.2s, border-color 0.2s;
+    letter-spacing: 0.04em;
+  }
+  .btn-ghost:hover { background: var(--amber-glow); border-color: rgba(196,168,255,0.55); }
+
+  /* SVG brain/lightning icon */
+  .icon-wrap {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 0.8rem;
+  }
+
+  .icon-svg {
+    filter: drop-shadow(0 0 20px rgba(196,168,255,0.6)) drop-shadow(0 0 45px rgba(196,168,255,0.2));
+    animation: iconPulse 5s ease-in-out infinite;
+  }
+
+  @keyframes iconPulse {
+    0%,100% { filter: drop-shadow(0 0 20px rgba(196,168,255,0.6)) drop-shadow(0 0 45px rgba(196,168,255,0.2)); }
+    50%      { filter: drop-shadow(0 0 32px rgba(196,168,255,0.85)) drop-shadow(0 0 65px rgba(196,168,255,0.35)); }
+  }
+
+  .header-title {
+    font-family: 'DM Sans', sans-serif;
+    font-size: clamp(1.6rem, 3.5vw, 2.3rem);
+    font-weight: 300;
+    letter-spacing: 0.04em;
+    color: var(--cream);
+  }
+
+  .header-title em {
+    font-family: 'Cormorant Garamond', serif;
+    font-style: italic;
+    font-weight: 600;
+    color: var(--amber);
+  }
+
+  .header-edition {
+    font-family: 'Cormorant Garamond', serif;
+    font-style: italic;
+    font-size: 1rem;
+    color: var(--amber);
+    opacity: 0.75;
+    margin-top: 0.2rem;
+    letter-spacing: 0.06em;
+  }
+
+  .header-sub {
+    font-family: 'Cormorant Garamond', serif;
+    font-style: italic;
+    font-size: clamp(1.25rem, 2.6vw, 1.55rem);
+    color: #e8c860;
+    margin-top: 0.4rem;
+    letter-spacing: 0.06em;
+    opacity: 0.92;
+  }
+
+  /* ── NAV ── */
+  nav {
+    position: sticky;
+    top: 0;
+    z-index: 20;
+    background: rgba(8,3,18,0.98);
+    backdrop-filter: blur(14px);
+    border-bottom: 1px solid var(--amber-dim);
+    display: flex;
+    justify-content: center;
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+  nav::-webkit-scrollbar { display: none; }
+
+  .tab-btn {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.78rem;
+    font-weight: 500;
+    letter-spacing: 0.09em;
+    text-transform: uppercase;
+    color: var(--cream);
+    background: none;
+    border: none;
+    border-bottom: 2.5px solid transparent;
+    padding: 1.1rem 1.6rem;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: color 0.2s, border-color 0.2s;
+    flex-shrink: 0;
+  }
+  .tab-btn:hover { color: #fff; }
+  .tab-btn.active { color: var(--amber); border-bottom-color: var(--amber); }
+
+  /* ── MAIN ── */
+  main {
+    position: relative;
+    z-index: 5;
+    max-width: 960px;
+    margin: 0 auto;
+    padding: 2.5rem 1.5rem 5rem;
+  }
+
+  .section-title {
+    font-family: 'DM Sans', sans-serif;
+    font-size: clamp(1.8rem, 4vw, 2.6rem);
+    font-weight: 300;
+    color: var(--cream);
+    margin-bottom: 0.3rem;
+  }
+
+  .section-hook {
+    font-family: 'Cormorant Garamond', serif;
+    font-style: italic;
+    font-size: clamp(1.15rem, 2.4vw, 1.4rem);
+    color: #e8c860;
+    margin-bottom: 2rem;
+    opacity: 0.9;
+  }
+
+  /* ── CARD ── */
+  .card {
+    position: relative;
+    background: linear-gradient(135deg, var(--card-bg) 0%, var(--card-bg2) 100%);
+    border: 1px solid var(--amber-dim);
+    border-radius: var(--radius);
+    padding: 1.8rem;
+    box-shadow: 0 4px 32px rgba(0,0,0,0.5), 0 1px 0 rgba(196,168,255,0.07) inset;
+    transition: border-color 0.25s;
+    margin-bottom: 1.5rem;
+  }
+  .card:hover { border-color: rgba(196,168,255,0.46); }
+  .card::before {
+    content: '';
+    position: absolute;
+    inset: 6px;
+    border: 1px solid rgba(196,168,255,0.07);
+    border-radius: calc(var(--radius) - 4px);
+    pointer-events: none;
+  }
+
+  .card-title {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 1rem;
+    font-weight: 500;
+    color: var(--cream);
+    padding-bottom: 0.6rem;
+    margin-bottom: 0.2rem;
+    border-bottom: 1px solid var(--amber-dim);
+    letter-spacing: 0.02em;
+  }
+
+  /* ── FORM ── */
+  .form-grid { display: grid; gap: 1.4rem; margin-top: 1.4rem; }
+
+  .form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.2rem;
+  }
+
+  .field-group { display: flex; flex-direction: column; gap: 0.42rem; }
+
+  label {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.8rem;
+    font-weight: 500;
+    color: var(--label);
+  }
+
+  input[type="text"], input[type="number"], input[type="date"],
+  select, textarea {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 1rem;
+    color: var(--cream);
+    background: rgba(26,61,42,0.90);
+    border: 1px solid rgba(196,168,255,0.22);
+    border-radius: 8px;
+    padding: 0.68rem 1rem;
+    width: 100%;
+    outline: none;
+    transition: border-color 0.2s, box-shadow 0.2s;
+    -webkit-appearance: none;
+  }
+  input::placeholder, textarea::placeholder {
+    font-style: italic;
+    font-weight: 300;
+    color: rgba(245,237,224,0.3);
+  }
+  input:focus, select:focus, textarea:focus {
+    border-color: rgba(196,168,255,0.6);
+    box-shadow: 0 0 0 3px rgba(196,168,255,0.07);
+  }
+  input[type="date"]::-webkit-calendar-picker-indicator {
+    filter: invert(0.6) sepia(1) saturate(2) hue-rotate(340deg);
+    cursor: pointer;
+  }
+  select option { background: #2d1050; color: var(--cream); }
+  textarea { resize: vertical; min-height: 88px; line-height: 1.6; }
+
+  /* ── DONUT SLIDERS ── */
+  .donut-grid {
+    display: grid;
+    grid-template-columns: repeat(6, 1fr);
+    gap: 1rem;
+    margin-top: 0.5rem;
+  }
+
+  .donut-col {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .donut-col label {
+    font-size: 0.7rem;
+    text-align: center;
+    line-height: 1.3;
+  }
+
+  input[type="range"] {
+    -webkit-appearance: none;
+    width: 100%;
+    height: 3px;
+    background: rgba(196,168,255,0.16);
+    border-radius: 2px;
+    outline: none;
+    cursor: pointer;
+  }
+  input[type="range"]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 18px; height: 18px;
+    border-radius: 50%;
+    background: var(--amber);
+    box-shadow: 0 0 8px rgba(196,168,255,0.65);
+    cursor: pointer;
+    transition: box-shadow 0.2s, transform 0.15s;
+  }
+  input[type="range"]::-webkit-slider-thumb:hover {
+    box-shadow: 0 0 16px rgba(196,168,255,0.9);
+    transform: scale(1.18);
+  }
+
+  .donut-wrap {
+    position: relative;
+    width: 60px;
+    height: 60px;
+  }
+  .donut-wrap svg { width: 60px; height: 60px; }
+  .donut-val {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1.2rem;
+    font-weight: 600;
+  }
+  .donut-sub {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.65rem;
+    color: var(--cream-dim);
+    text-align: center;
+    letter-spacing: 0.03em;
+  }
+
+  /* ── DOPAMINE STATE LABELS ── */
+  .dopamine-labels {
+    display: flex;
+    justify-content: space-between;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.62rem;
+    color: rgba(245,237,224,0.35);
+    margin-top: 0.2rem;
+    padding: 0 2px;
+  }
+
+  /* ── TASK INITIATION BUTTONS ── */
+  .init-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 0.6rem;
+    margin-top: 0.5rem;
+  }
+  .init-btn {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.75rem;
+    font-weight: 500;
+    color: var(--cream-dim);
+    background: rgba(20,8,40,0.6);
+    border: 1px solid rgba(196,168,255,0.18);
+    border-radius: 8px;
+    padding: 0.6rem 0.4rem;
+    cursor: pointer;
+    text-align: center;
+    transition: all 0.2s;
+    line-height: 1.3;
+  }
+  .init-btn:hover { border-color: rgba(196,168,255,0.45); color: var(--cream); }
+  .init-btn.selected {
+    background: rgba(196,168,255,0.18);
+    border-color: var(--amber);
+    color: var(--amber);
+  }
+
+  /* ── TIME BLINDNESS ── */
+  .time-opts {
+    display: flex;
+    gap: 0.6rem;
+    flex-wrap: wrap;
+    margin-top: 0.5rem;
+  }
+  .time-opt {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.78rem;
+    color: var(--cream-dim);
+    background: rgba(20,8,40,0.6);
+    border: 1px solid rgba(196,168,255,0.18);
+    border-radius: 20px;
+    padding: 0.4rem 0.9rem;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .time-opt.selected {
+    background: rgba(196,168,255,0.18);
+    border-color: var(--amber);
+    color: var(--amber);
+  }
+
+  /* ── SAVE BUTTON ── */
+  .btn-primary {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.82rem;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: #1a0d2e;
+    background: linear-gradient(135deg, #d4903a 0%, #dfc4ff 50%, #c4a8ff 100%);
+    background-size: 200% auto;
+    border: none;
+    border-radius: 8px;
+    padding: 0.88rem 2.6rem;
+    cursor: pointer;
+    transition: background-position 0.4s, box-shadow 0.2s, transform 0.15s;
+    box-shadow: 0 4px 20px rgba(196,168,255,0.35);
+    display: block;
+    margin: 1.6rem auto 0;
+  }
+  .btn-primary:hover {
+    background-position: right center;
+    box-shadow: 0 6px 30px rgba(196,168,255,0.55);
+    transform: translateY(-1px);
+  }
+
+  /* ── YESTERDAY CARD ── */
+  .yesterday-grid {
+    display: grid;
+    grid-template-columns: repeat(6, 1fr);
+    gap: 0.6rem;
+    margin-top: 0.8rem;
+  }
+  .y-stat {
+    text-align: center;
+    background: rgba(20,8,40,0.4);
+    border: 1px solid rgba(196,168,255,0.12);
+    border-radius: 8px;
+    padding: 0.6rem 0.3rem;
+  }
+  .y-val {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1.5rem;
+    font-weight: 600;
+    line-height: 1;
+    margin-bottom: 0.2rem;
+  }
+  .y-lbl {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.62rem;
+    color: var(--cream-dim);
+  }
+
+  /* ── STAT CARDS ── */
+  .stat-grid {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 0.9rem;
+    margin-bottom: 1.5rem;
+  }
+  .stat-card {
+    background: rgba(20,8,40,0.5);
+    border: 1px solid var(--amber-dim);
+    border-radius: 10px;
+    padding: 1rem;
+    text-align: center;
+  }
+  .stat-value {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 2rem;
+    font-weight: 600;
+    color: var(--amber);
+    line-height: 1;
+    margin-bottom: 0.3rem;
+  }
+  .stat-label {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.72rem;
+    color: var(--cream-dim);
+  }
+
+  /* ── CHARTS ── */
+  .chart-container { position: relative; width: 100%; overflow: hidden; }
+  .chart-svg { width: 100%; display: block; }
+  .chart-toggle { display: flex; gap: 0.5rem; margin-bottom: 1rem; }
+  .toggle-btn {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.73rem;
+    font-weight: 500;
+    color: var(--cream-dim);
+    background: rgba(196,168,255,0.07);
+    border: 1px solid var(--amber-dim);
+    border-radius: 6px;
+    padding: 0.33rem 0.8rem;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .toggle-btn.active, .toggle-btn:hover {
+    color: var(--amber);
+    background: rgba(196,168,255,0.14);
+    border-color: rgba(196,168,255,0.5);
+  }
+  .chart-tooltip {
+    position: absolute;
+    background: rgba(26,13,50,0.97);
+    border: 1px solid var(--amber-dim);
+    border-radius: 7px;
+    padding: 0.45rem 0.8rem;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.78rem;
+    color: var(--cream);
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.18s;
+    white-space: nowrap;
+    z-index: 50;
+  }
+  .chart-tooltip.visible { opacity: 1; }
+
+  /* ── WINS ── */
+  .win-item {
+    background: rgba(20,8,40,0.5);
+    border: 1px solid rgba(196,168,255,0.12);
+    border-radius: 8px;
+    padding: 0.9rem 1.1rem;
+    margin-bottom: 0.6rem;
+    transition: border-color 0.2s;
+  }
+  .win-item:hover { border-color: rgba(196,168,255,0.32); }
+  .win-text { font-family: 'DM Sans', sans-serif; font-size: 0.92rem; color: var(--cream); margin-bottom: 0.35rem; }
+  .win-meta { display: flex; gap: 0.8rem; font-size: 0.75rem; color: var(--cream-dim); }
+  .win-cat { color: var(--amber); font-weight: 500; }
+  .remind-btn {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.78rem;
+    font-weight: 500;
+    color: var(--amber);
+    background: rgba(196,168,255,0.08);
+    border: 1px solid var(--amber-dim);
+    border-radius: 6px;
+    padding: 0.48rem 1.1rem;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .remind-btn:hover { background: rgba(196,168,255,0.18); }
+
+  /* ── MY CALM ── */
+  .crisis-resource {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 0.9rem 1rem;
+    background: rgba(20,8,40,0.5);
+    border: 1px solid rgba(196,168,255,0.15);
+    border-radius: 8px;
+    margin-bottom: 0.6rem;
+    text-decoration: none;
+    transition: border-color 0.2s;
+  }
+  .crisis-resource:hover { border-color: rgba(196,168,255,0.4); }
+  .crisis-resource-name { font-family: 'DM Sans', sans-serif; font-size: 0.9rem; font-weight: 600; color: var(--cream); margin-bottom: 0.15rem; }
+  .crisis-resource-detail { font-family: 'DM Sans', sans-serif; font-size: 0.78rem; color: var(--cream-dim); }
+  .crisis-resource-action { font-family: 'DM Sans', sans-serif; font-size: 0.75rem; font-weight: 600; color: var(--amber); letter-spacing: 0.06em; margin-left: auto; }
+  .crisis-note {
+    font-family: 'Cormorant Garamond', serif;
+    font-style: italic;
+    font-size: 0.95rem;
+    color: rgba(245,237,224,0.45);
+    text-align: center;
+    padding: 0.8rem 0 0.3rem;
+  }
+
+  /* ── EMPTY STATE ── */
+  .empty-state {
+    text-align: center;
+    padding: 2.5rem 1.5rem;
+    font-family: 'Cormorant Garamond', serif;
+    font-style: italic;
+    font-size: 1.08rem;
+    color: rgba(245,237,224,0.38);
+    border: 1px dashed rgba(196,168,255,0.14);
+    border-radius: 10px;
+  }
+
+  /* ── TOGGLE SWITCH ── */
+  .toggle-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.55rem 0;
+    border-bottom: 1px solid rgba(196,168,255,0.08);
+  }
+  .toggle-row:last-child { border-bottom: none; }
+  .toggle-row-label { font-family: 'DM Sans', sans-serif; font-size: 0.88rem; color: var(--cream); }
+  .switch { position: relative; width: 42px; height: 24px; flex-shrink: 0; }
+  .switch input { opacity: 0; width: 0; height: 0; }
+  .switch-track {
+    position: absolute;
+    inset: 0;
+    background: rgba(196,168,255,0.15);
+    border: 1px solid var(--amber-dim);
+    border-radius: 12px;
+    cursor: pointer;
+    transition: background 0.2s;
+  }
+  .switch input:checked + .switch-track { background: rgba(196,168,255,0.45); }
+  .switch-track::after {
+    content: '';
+    position: absolute;
+    left: 3px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 16px; height: 16px;
+    background: var(--amber);
+    border-radius: 50%;
+    transition: left 0.2s;
+    box-shadow: 0 0 6px rgba(196,168,255,0.5);
+  }
+  .switch input:checked + .switch-track::after { left: 21px; }
+
+  /* ── TOAST ── */
+  .toast {
+    position: fixed;
+    bottom: 2rem;
+    left: 50%;
+    transform: translateX(-50%) translateY(80px);
+    background: rgba(26,13,50,0.97);
+    border: 1px solid var(--amber-dim);
+    border-radius: 8px;
+    padding: 0.75rem 1.5rem;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.85rem;
+    color: var(--amber);
+    z-index: 100;
+    transition: transform 0.35s cubic-bezier(0.34,1.56,0.64,1), opacity 0.3s;
+    opacity: 0;
+    pointer-events: none;
+  }
+  .toast.show { transform: translateX(-50%) translateY(0); opacity: 1; }
+
+  .fade-in { animation: fadeIn 0.45s ease both; }
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  @media (max-width: 700px) {
+    .donut-grid { grid-template-columns: repeat(3, 1fr); }
+    .form-row { grid-template-columns: 1fr; }
+    .stat-grid { grid-template-columns: repeat(3, 1fr); }
+    .init-grid { grid-template-columns: repeat(2, 1fr); }
+    .yesterday-grid { grid-template-columns: repeat(3, 1fr); }
+    header { padding: 1.5rem 1rem 1.2rem; }
+    .header-actions { top: 0.9rem; right: 0.9rem; }
+  }
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header>
+  <div class="header-actions">
+    <button class="btn-ghost" onclick="exportData()">Export</button>
+    <button class="btn-ghost" onclick="importData()">Import</button>
+    <input type="file" id="importFile" accept=".json" style="display:none" onchange="handleImport(event)">
+  </div>
+
+  <div class="icon-wrap">
+    <svg class="icon-svg" width="72" height="72" viewBox="0 0 72 72" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <radialGradient id="ig" cx="40%" cy="35%" r="60%">
+          <stop offset="0%"   stop-color="#c890ff"/>
+          <stop offset="50%"  stop-color="#c4a8ff"/>
+          <stop offset="100%" stop-color="#4a2080"/>
+        </radialGradient>
+        <filter id="glow">
+          <feGaussianBlur stdDeviation="2" result="b"/>
+          <feComposite in="SourceGraphic" in2="b" operator="over"/>
+        </filter>
+      </defs>
+      <!-- Lightning bolt — energy, spark, ADHD zing -->
+      <circle cx="36" cy="36" r="32" fill="rgba(196,168,255,0.12)" stroke="rgba(196,168,255,0.25)" stroke-width="1"/>
+      <path d="M 42 10 L 28 36 L 37 36 L 30 62 L 50 30 L 39 30 Z"
+        fill="url(#ig)" filter="url(#glow)"
+        stroke="rgba(212,168,255,0.4)" stroke-width="0.8" stroke-linejoin="round"/>
+    </svg>
+  </div>
+
+  <h1 class="header-title">Ever After <em>ADHD Tracker</em></h1>
+  <p class="header-edition">Amethyst Edition</p>
+  <p class="header-sub">Know your brain. Work with it.</p>
+</header>
+
+<div class="gold-divider"></div>
+
+<!-- NAV -->
+<nav>
+  <button class="tab-btn active" onclick="switchTab('today',this)">Today</button>
+  <button class="tab-btn" onclick="switchTab('focus',this)">My Patterns</button>
+  <button class="tab-btn" onclick="switchTab('wins',this)">My Wins</button>
+  <button class="tab-btn" onclick="switchTab('calm',this)">My Calm</button>
+</nav>
+
+<main>
+
+<!-- ══ TAB: TODAY ══ -->
+<div id="tab-today" class="fade-in">
+  <h2 class="section-title">Today</h2>
+  <p class="section-hook">"How's your brain today? No, actually."</p>
+
+  <div class="card">
+    <div class="card-title">Daily Check-In</div>
+    <div class="form-grid">
+
+      <!-- Date + Med taken -->
+      <div class="form-row">
+        <div class="field-group">
+          <label for="entryDate">Date</label>
+          <input type="date" id="entryDate">
+        </div>
+        <div class="field-group">
+          <label for="medTaken">Medication taken?</label>
+          <select id="medTaken">
+            <option value="">— choose —</option>
+            <option>Yes — on time</option>
+            <option>Yes — late</option>
+            <option>No — forgot</option>
+            <option>No — intentional break</option>
+            <option>Not applicable</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- 6 Donut sliders -->
+      <div>
+        <label style="margin-bottom:0.7rem;display:block">How's everything sitting right now?</label>
+        <div class="donut-grid">
+
+          <!-- FOCUS -->
+          <div class="donut-col">
+            <label for="focusSlider">Focus</label>
+            <input type="range" id="focusSlider" min="1" max="10" value="5" oninput="updateDonut('focus',this.value)">
+            <div class="donut-wrap">
+              <svg viewBox="0 0 60 60"><circle cx="30" cy="30" r="22" fill="none" stroke="rgba(196,168,255,0.12)" stroke-width="7"/><circle id="donut-focus" cx="30" cy="30" r="22" fill="none" stroke="#c4a8ff" stroke-width="7" stroke-linecap="round" stroke-dasharray="138.2" stroke-dashoffset="69.1" transform="rotate(-90 30 30)" style="transition:stroke-dashoffset 0.3s ease"/></svg>
+              <div class="donut-val" style="color:#c4a8ff" id="val-focus">5</div>
+            </div>
+            <span class="donut-sub">/ 10</span>
+          </div>
+
+          <!-- ENERGY -->
+          <div class="donut-col">
+            <label for="energySlider">Energy</label>
+            <input type="range" id="energySlider" min="1" max="10" value="5" oninput="updateDonut('energy',this.value)">
+            <div class="donut-wrap">
+              <svg viewBox="0 0 60 60"><circle cx="30" cy="30" r="22" fill="none" stroke="rgba(138,168,130,0.15)" stroke-width="7"/><circle id="donut-energy" cx="30" cy="30" r="22" fill="none" stroke="#8fa882" stroke-width="7" stroke-linecap="round" stroke-dasharray="138.2" stroke-dashoffset="69.1" transform="rotate(-90 30 30)" style="transition:stroke-dashoffset 0.3s ease"/></svg>
+              <div class="donut-val" style="color:#8fa882" id="val-energy">5</div>
+            </div>
+            <span class="donut-sub">/ 10</span>
+          </div>
+
+          <!-- DOPAMINE -->
+          <div class="donut-col">
+            <label for="dopamineSlider">Dopamine</label>
+            <input type="range" id="dopamineSlider" min="1" max="10" value="5" oninput="updateDonut('dopamine',this.value)">
+            <div class="donut-wrap">
+              <svg viewBox="0 0 60 60"><circle cx="30" cy="30" r="22" fill="none" stroke="rgba(212,168,255,0.15)" stroke-width="7"/><circle id="donut-dopamine" cx="30" cy="30" r="22" fill="none" stroke="#dfc4ff" stroke-width="7" stroke-linecap="round" stroke-dasharray="138.2" stroke-dashoffset="69.1" transform="rotate(-90 30 30)" style="transition:stroke-dashoffset 0.3s ease"/></svg>
+              <div class="donut-val" style="color:#dfc4ff" id="val-dopamine">5</div>
+            </div>
+            <span class="donut-sub">/ 10</span>
+          </div>
+
+          <!-- MOOD -->
+          <div class="donut-col">
+            <label for="moodSlider">Mood</label>
+            <input type="range" id="moodSlider" min="1" max="10" value="5" oninput="updateDonut('mood',this.value)">
+            <div class="donut-wrap">
+              <svg viewBox="0 0 60 60"><circle cx="30" cy="30" r="22" fill="none" stroke="rgba(74,143,168,0.15)" stroke-width="7"/><circle id="donut-mood" cx="30" cy="30" r="22" fill="none" stroke="#4a8fa8" stroke-width="7" stroke-linecap="round" stroke-dasharray="138.2" stroke-dashoffset="69.1" transform="rotate(-90 30 30)" style="transition:stroke-dashoffset 0.3s ease"/></svg>
+              <div class="donut-val" style="color:#4a8fa8" id="val-mood">5</div>
+            </div>
+            <span class="donut-sub">/ 10</span>
+          </div>
+
+          <!-- ANXIETY -->
+          <div class="donut-col">
+            <label for="anxietySlider">Anxiety</label>
+            <input type="range" id="anxietySlider" min="1" max="10" value="5" oninput="updateDonut('anxiety',this.value)">
+            <div class="donut-wrap">
+              <svg viewBox="0 0 60 60"><circle cx="30" cy="30" r="22" fill="none" stroke="rgba(122,74,107,0.15)" stroke-width="7"/><circle id="donut-anxiety" cx="30" cy="30" r="22" fill="none" stroke="#7a4a6b" stroke-width="7" stroke-linecap="round" stroke-dasharray="138.2" stroke-dashoffset="69.1" transform="rotate(-90 30 30)" style="transition:stroke-dashoffset 0.3s ease"/></svg>
+              <div class="donut-val" style="color:#9b6a8a" id="val-anxiety">5</div>
+            </div>
+            <span class="donut-sub">/ 10</span>
+          </div>
+
+          <!-- SLEEP -->
+          <div class="donut-col">
+            <label for="sleepSlider">Sleep</label>
+            <input type="range" id="sleepSlider" min="1" max="12" value="7" oninput="updateSleepDonut(this.value)">
+            <div class="donut-wrap">
+              <svg viewBox="0 0 60 60"><circle cx="30" cy="30" r="22" fill="none" stroke="rgba(180,160,220,0.15)" stroke-width="7"/><circle id="donut-sleep" cx="30" cy="30" r="22" fill="none" stroke="#b4a0d8" stroke-width="7" stroke-linecap="round" stroke-dasharray="138.2" stroke-dashoffset="57.6" transform="rotate(-90 30 30)" style="transition:stroke-dashoffset 0.3s ease"/></svg>
+              <div class="donut-val" style="color:#b4a0d8;font-size:1rem" id="val-sleep">7h</div>
+            </div>
+            <span class="donut-sub">hours</span>
+          </div>
+
+        </div>
+
+        <!-- Dopamine state labels -->
+        <div class="dopamine-labels" style="margin-top:0.3rem;padding:0 calc(100%/6*2 + 0.5rem) 0 calc(100%/6*2 + 0.5rem)">
+          <span>Flat</span>
+          <span>Seeking</span>
+          <span>Locked in</span>
+          <span>Overwhelmed</span>
+        </div>
+      </div>
+
+      <!-- Task initiation -->
+      <div class="field-group">
+        <label>Task initiation today</label>
+        <div class="init-grid">
+          <button class="init-btn" onclick="selectInit(this)" data-val="flowing">⚡ Flowing — started things easily</button>
+          <button class="init-btn" onclick="selectInit(this)" data-val="slow">🌊 Slow start — got there eventually</button>
+          <button class="init-btn" onclick="selectInit(this)" data-val="frozen">🧊 Frozen — couldn't begin</button>
+          <button class="init-btn" onclick="selectInit(this)" data-val="hyperfocus">🔥 Hyperfocused — couldn't stop</button>
+        </div>
+      </div>
+
+      <!-- Time blindness -->
+      <div class="field-group">
+        <label>Time felt like</label>
+        <div class="time-opts">
+          <button class="time-opt" onclick="selectTime(this)" data-val="normal">Normal</button>
+          <button class="time-opt" onclick="selectTime(this)" data-val="vanished">It vanished</button>
+          <button class="time-opt" onclick="selectTime(this)" data-val="dragging">Dragging</button>
+          <button class="time-opt" onclick="selectTime(this)" data-val="missing">I lost hours</button>
+          <button class="time-opt" onclick="selectTime(this)" data-val="fragmented">Fragmented</button>
+        </div>
+      </div>
+
+      <!-- Med effect -->
+      <div class="field-group">
+        <label for="medEffect">Medication effect today</label>
+        <select id="medEffect">
+          <option value="">— how did it land —</option>
+          <option>Worked well — clear and focused</option>
+          <option>Worked partially — wore off early</option>
+          <option>Too much — jittery or anxious</option>
+          <option>Not much effect today</option>
+          <option>Rebound crash this afternoon</option>
+          <option>Not applicable</option>
+        </select>
+      </div>
+
+      <!-- Win + intention -->
+      <div class="field-group">
+        <label for="winToday">One win from today</label>
+        <input type="text" id="winToday" placeholder="Started the thing. Replied to that message. Got outside.">
+      </div>
+
+      <div class="field-group">
+        <label for="intentionToday">One intention for tomorrow</label>
+        <input type="text" id="intentionToday" placeholder="Just one. Make it small enough to actually happen.">
+      </div>
+
+      <!-- Notes -->
+      <div class="field-group">
+        <label for="notes">Notes</label>
+        <textarea id="notes" placeholder="Brain dump. Observations. Anything worth remembering."></textarea>
+      </div>
+
+    </div>
+    <button class="btn-primary" onclick="saveEntry()">Save today</button>
+  </div>
+
+  <!-- Yesterday card -->
+  <div id="yesterdayCard"></div>
+
+</div>
+
+<!-- ══ TAB: MY PATTERNS ══ -->
+<div id="tab-focus" style="display:none">
+  <h2 class="section-title">My Patterns</h2>
+  <p class="section-hook">"The story your brain is telling. Ready to read it?"</p>
+
+  <div class="stat-grid" id="patternStats">
+    <div class="stat-card"><div class="stat-value" id="statDays">0</div><div class="stat-label">Days with you</div></div>
+    <div class="stat-card"><div class="stat-value" id="statAvgFocus">—</div><div class="stat-label">Avg focus</div></div>
+    <div class="stat-card"><div class="stat-value" id="statAvgDopamine">—</div><div class="stat-label">Avg dopamine</div></div>
+    <div class="stat-card"><div class="stat-value" id="statAvgSleep">—</div><div class="stat-label">Avg sleep (hrs)</div></div>
+    <div class="stat-card"><div class="stat-value" id="statBestDay">—</div><div class="stat-label">Best day of week</div></div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">Focus & dopamine over time</div>
+    <div class="chart-toggle">
+      <button class="toggle-btn active" onclick="setRange(7,this)">7 days</button>
+      <button class="toggle-btn" onclick="setRange(30,this)">30 days</button>
+      <button class="toggle-btn" onclick="setRange(90,this)">90 days</button>
+    </div>
+    <div class="chart-container" style="height:200px">
+      <svg class="chart-svg" id="focusChart" viewBox="0 0 800 200" preserveAspectRatio="none"></svg>
+      <div class="chart-tooltip" id="focusTooltip"></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">Dopamine state</div>
+    <div class="chart-container" style="height:160px">
+      <svg class="chart-svg" id="dopamineChart" viewBox="0 0 800 160" preserveAspectRatio="none"></svg>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">Energy trends</div>
+    <div class="chart-container" style="height:160px">
+      <svg class="chart-svg" id="energyChart" viewBox="0 0 800 160" preserveAspectRatio="none"></svg>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">Anxiety trends</div>
+    <div class="chart-container" style="height:160px">
+      <svg class="chart-svg" id="anxietyChart" viewBox="0 0 800 160" preserveAspectRatio="none"></svg>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">Sleep hours</div>
+    <div class="chart-container" style="height:160px">
+      <svg class="chart-svg" id="sleepChart" viewBox="0 0 800 160" preserveAspectRatio="none"></svg>
+    </div>
+  </div>
+</div>
+
+<!-- ══ TAB: MY WINS ══ -->
+<div id="tab-wins" style="display:none">
+  <h2 class="section-title">My Wins</h2>
+  <p class="section-hook">"Evidence you're doing better than your brain is telling you."</p>
+
+  <div class="card">
+    <div class="card-title">Log a win</div>
+    <div class="form-grid">
+      <div class="field-group">
+        <label for="winInput">What happened?</label>
+        <input type="text" id="winInput" placeholder="No minimum size. Starting the thing counts.">
+      </div>
+      <div class="form-row">
+        <div class="field-group">
+          <label for="winCat">Category</label>
+          <select id="winCat">
+            <option value="">— what kind —</option>
+            <option>Focus win</option>
+            <option>Task initiated</option>
+            <option>Showed up</option>
+            <option>Self-care</option>
+            <option>Relationship</option>
+            <option>Work</option>
+            <option>Creative</option>
+            <option>Other</option>
+          </select>
+        </div>
+        <div class="field-group">
+          <label for="winDate">Date</label>
+          <input type="date" id="winDate">
+        </div>
+      </div>
+    </div>
+    <button class="btn-primary" onclick="saveWin()">Save this win</button>
+  </div>
+
+  <div style="margin-top:1.5rem">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem">
+      <span style="font-family:'DM Sans',sans-serif;font-size:1rem;font-weight:500;color:var(--cream)">Your wins</span>
+      <div style="display:flex;gap:0.8rem;align-items:center">
+        <button class="remind-btn" onclick="remindMe()">✦ Remind me</button>
+        <span style="font-family:'DM Sans',sans-serif;font-size:0.78rem;color:var(--amber);opacity:0.82" id="winsCount">0 wins</span>
+      </div>
+    </div>
+    <div id="winReminder" style="display:none;margin-bottom:1rem" class="card">
+      <p style="font-family:'Cormorant Garamond',serif;font-style:italic;font-size:1rem;color:var(--amber);margin-bottom:0.3rem">A win worth remembering:</p>
+      <p id="reminderText" style="font-family:'DM Sans',sans-serif;font-size:0.92rem;color:var(--cream)"></p>
+    </div>
+    <div id="winList"><div class="empty-state">Every win you log is evidence against the hard days.</div></div>
+  </div>
+</div>
+
+<!-- ══ TAB: MY CALM ══ -->
+<div id="tab-calm" style="display:none">
+  <h2 class="section-title">My Calm</h2>
+  <p class="section-hook">"You have gotten through every hard day so far. That is 100%."</p>
+
+  <div style="display:flex;flex-direction:column;gap:1.5rem">
+
+      <!-- MY PEOPLE -->
+      <div class="card">
+        <div class="card-title">My people</div>
+        <p style="font-family:'DM Sans',sans-serif;font-size:0.75rem;font-style:italic;color:var(--cream-dim);margin-bottom:1rem">Stored locally. Never synced. Only you.</p>
+        <div id="contactList"></div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.7rem;margin-bottom:0.7rem">
+          <div class="field-group"><label for="cName">Name</label><input type="text" id="cName" placeholder="Who to call"></div>
+          <div class="field-group"><label for="cRel">Relationship</label><input type="text" id="cRel" placeholder="Therapist, friend..."></div>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr auto;gap:0.7rem;align-items:flex-end">
+          <div class="field-group"><label for="cPhone">Phone</label><input type="text" id="cPhone" placeholder="Their number"></div>
+          <button class="btn-primary" style="margin:0;padding:0.68rem 1.1rem;white-space:nowrap" onclick="saveContact()">Add</button>
+        </div>
+      </div>
+
+      <!-- GROUNDING TECHNIQUES -->
+      <div class="card">
+        <div class="card-title">My grounding techniques</div>
+        <div id="groundingList" style="margin-bottom:0.8rem"></div>
+        <div style="display:grid;grid-template-columns:1fr auto;gap:0.7rem;align-items:flex-end;margin-top:0.5rem">
+          <div class="field-group">
+            <label for="groundingInput">Add a technique</label>
+            <input type="text" id="groundingInput" placeholder="Body doubling, cold water, put on shoes, 2-minute timer...">
+          </div>
+          <button class="btn-primary" style="margin:0;padding:0.68rem 1.1rem;white-space:nowrap" onclick="addGrounding()">Add</button>
+        </div>
+      </div>
+
+      <!-- WHAT WORKS FOR ME -->
+      <div class="card">
+        <div class="card-title">What works for me</div>
+        <div id="whatWorksList" style="margin-bottom:0.8rem"></div>
+        <div style="display:grid;grid-template-columns:1fr auto;gap:0.7rem;align-items:flex-end;margin-top:0.5rem">
+          <div class="field-group">
+            <label for="whatWorksInput">Add a note</label>
+            <input type="text" id="whatWorksInput" placeholder="What helps you start. What to remember on bad days.">
+          </div>
+          <button class="btn-primary" style="margin:0;padding:0.68rem 1.1rem;white-space:nowrap" onclick="addWhatWorks()">Add</button>
+        </div>
+      </div>
+
+      <!-- EMERGENCY RESOURCES -->
+      <div class="card">
+        <div class="card-title">Emergency resources — always here</div>
+        <a class="crisis-resource" href="tel:988">
+          <span style="font-size:1.4rem">📞</span>
+          <div><div class="crisis-resource-name">988 Suicide &amp; Crisis Lifeline</div><div class="crisis-resource-detail">Call or text — 24/7, free, confidential</div></div>
+          <span class="crisis-resource-action">CALL 988</span>
+        </a>
+        <a class="crisis-resource" href="sms:741741&body=HOME">
+          <span style="font-size:1.4rem">💬</span>
+          <div><div class="crisis-resource-name">Crisis Text Line</div><div class="crisis-resource-detail">Text HOME to 741741 — 24/7</div></div>
+          <span class="crisis-resource-action">TEXT NOW</span>
+        </a>
+        <p class="crisis-note">Hard days count too. You do not have to be in crisis.</p>
+      </div>
+
+    </div>
+
+</main>
+<div class="toast" id="toast"></div>
+
+<script>
+  const CIRC = 2 * Math.PI * 22;
+
+  // ── DATE DEFAULTS ──
+  (function() {
+    const d = new Date(), p = n => String(n).padStart(2,'0');
+    const today = `${d.getFullYear()}-${p(d.getMonth()+1)}-${p(d.getDate())}`;
+    ['entryDate','winDate'].forEach(id => { const el = document.getElementById(id); if(el) el.value = today; });
+  })();
+
+  // ── DONUT UPDATE ──
+  const DONUTS = {
+    focus:    { stroke: '#c4a8ff' },
+    energy:   { stroke: '#8fa882' },
+    dopamine: { stroke: '#dfc4ff' },
+    mood:     { stroke: '#4a8fa8' },
+    anxiety:  { stroke: '#9b6a8a' },
+  };
+
+  function updateDonut(key, val) {
+    val = parseInt(val) || 5;
+    const arc = document.getElementById('donut-' + key);
+    const lbl = document.getElementById('val-' + key);
+    if (arc) arc.style.strokeDashoffset = CIRC - (val / 10) * CIRC;
+    if (lbl) lbl.textContent = val;
+  }
+
+  function updateSleepDonut(val) {
+    val = parseFloat(val) || 7;
+    const arc = document.getElementById('donut-sleep');
+    const lbl = document.getElementById('val-sleep');
+    const maxH = 12;
+    if (arc) arc.style.strokeDashoffset = CIRC - (val / maxH) * CIRC;
+    if (lbl) lbl.textContent = val + 'h';
+  }
+
+  function initDonuts() {
+    Object.keys(DONUTS).forEach(k => updateDonut(k, 5));
+    updateSleepDonut(7);
+  }
+  initDonuts();
+
+  // ── TASK INITIATION ──
+  let selectedInit = '';
+  function selectInit(btn) {
+    document.querySelectorAll('.init-btn').forEach(b => b.classList.remove('selected'));
+    btn.classList.add('selected');
+    selectedInit = btn.dataset.val;
+  }
+
+  // ── TIME BLINDNESS ──
+  let selectedTime = '';
+  function selectTime(btn) {
+    document.querySelectorAll('.time-opt').forEach(b => b.classList.remove('selected'));
+    btn.classList.add('selected');
+    selectedTime = btn.dataset.val;
+  }
+
+  // ── TAB SWITCH ──
+  function switchTab(name, btn) {
+    document.querySelectorAll('[id^="tab-"]').forEach(t => t.style.display = 'none');
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    const panel = document.getElementById('tab-' + name);
+    panel.style.display = 'block';
+    panel.classList.remove('fade-in');
+    void panel.offsetWidth;
+    panel.classList.add('fade-in');
+    btn.classList.add('active');
+    if (name === 'today')   { renderYesterday(); }
+    if (name === 'focus')   { renderCharts(); }
+    if (name === 'wins')    { renderWins(); }
+    if (name === 'calm')    { loadCalm(); renderContacts(); }
+  }
+
+  // ── TOAST ──
+  function showToast(msg) {
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.classList.add('show');
+    setTimeout(() => t.classList.remove('show'), 2800);
+  }
+
+  // ── SAVE ENTRY ──
+  function saveEntry() {
+    const date = document.getElementById('entryDate').value;
+    if (!date) { showToast('Pick a date first.'); return; }
+    const entries = JSON.parse(localStorage.getItem('adhd_entries') || '{}');
+    entries[date] = {
+      date,
+      focus:    document.getElementById('focusSlider').value,
+      energy:   document.getElementById('energySlider').value,
+      dopamine: document.getElementById('dopamineSlider').value,
+      mood:     document.getElementById('moodSlider').value,
+      anxiety:  document.getElementById('anxietySlider').value,
+      sleep:    document.getElementById('sleepSlider').value,
+      medTaken: document.getElementById('medTaken').value,
+      medEffect:document.getElementById('medEffect').value,
+      initState:selectedInit,
+      timeBlind:selectedTime,
+      win:      document.getElementById('winToday').value.trim(),
+      intent:   document.getElementById('intentionToday').value.trim(),
+      notes:    document.getElementById('notes').value.trim(),
+      savedAt:  Date.now()
+    };
+    localStorage.setItem('adhd_entries', JSON.stringify(entries));
+    showToast('Entry saved. ✦');
+    renderYesterday();
+  }
+
+  // ── YESTERDAY CARD ──
+  function renderYesterday() {
+    const entries = JSON.parse(localStorage.getItem('adhd_entries') || '{}');
+    const keys = Object.keys(entries).sort();
+    const el = document.getElementById('yesterdayCard');
+    if (!el) return;
+    const d = new Date(); d.setDate(d.getDate()-1);
+    const p = n => String(n).padStart(2,'0');
+    const yk = `${d.getFullYear()}-${p(d.getMonth()+1)}-${p(d.getDate())}`;
+    const e = entries[yk] || (keys.length > 1 ? entries[keys[keys.length-2]] : null);
+    if (!e) {
+      el.innerHTML = '<div class="empty-state" style="margin-top:1.5rem">No entry yet for yesterday. Check in today to start building your picture.</div>';
+      return;
+    }
+    const display = new Date(e.date+'T12:00:00').toLocaleDateString('en-US',{weekday:'long',month:'long',day:'numeric'});
+    el.innerHTML = `<div class="card" style="margin-top:1.5rem">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem;padding-bottom:0.6rem;border-bottom:1px solid var(--amber-dim)">
+        <span style="font-family:sans-serif;font-size:1rem;font-weight:500;color:var(--cream)">Yesterday</span>
+        <span style="font-family:sans-serif;font-size:0.78rem;color:var(--cream-dim)">${display}</span>
+      </div>
+      <div class="yesterday-grid">
+        <div class="y-stat"><div class="y-val" style="color:#c4a8ff">${e.focus||'—'}</div><div class="y-lbl">Focus</div></div>
+        <div class="y-stat"><div class="y-val" style="color:#8fa882">${e.energy||'—'}</div><div class="y-lbl">Energy</div></div>
+        <div class="y-stat"><div class="y-val" style="color:#dfc4ff">${e.dopamine||'—'}</div><div class="y-lbl">Dopamine</div></div>
+        <div class="y-stat"><div class="y-val" style="color:#4a8fa8">${e.mood||'—'}</div><div class="y-lbl">Mood</div></div>
+        <div class="y-stat"><div class="y-val" style="color:#9b6a8a">${e.anxiety||'—'}</div><div class="y-lbl">Anxiety</div></div>
+        <div class="y-stat"><div class="y-val" style="color:#b4a0d8;font-size:1.2rem">${e.sleep||'—'}h</div><div class="y-lbl">Sleep</div></div>
+      </div>
+      ${e.initState ? `<div style="margin-top:0.8rem;font-family:sans-serif;font-size:0.82rem;color:var(--cream-dim)">Task initiation: <span style="color:var(--amber)">${e.initState}</span></div>` : ''}
+    </div>`;
+  }
+
+  // ── CHART ENGINE ──
+  let chartRange = 7;
+  function setRange(days, btn) {
+    chartRange = days;
+    document.querySelectorAll('.toggle-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    renderCharts();
+  }
+
+  function getEntries(days) {
+    const all = JSON.parse(localStorage.getItem('adhd_entries') || '{}');
+    const keys = Object.keys(all).sort();
+    if (!days) return keys.map(k => all[k]);
+    const cutoff = new Date(); cutoff.setDate(cutoff.getDate() - days);
+    return keys.filter(k => new Date(k+'T12:00:00') >= cutoff).map(k => all[k]);
+  }
+
+  function renderLine(svgId, entries, field, color, w, h, maxVal) {
+    const svg = document.getElementById(svgId);
+    if (!svg) return;
+    maxVal = maxVal || 10;
+    const pad = {top:24, right:20, bottom:28, left:32};
+    const iw = w - pad.left - pad.right;
+    const ih = h - pad.top - pad.bottom;
+    if (!entries.length) {
+      svg.innerHTML = `<text x="${w/2}" y="${h/2}" text-anchor="middle" fill="rgba(245,237,224,0.22)" font-family="Cormorant Garamond,serif" font-style="italic" font-size="14">Keep logging — your patterns will appear here.</text>`;
+      return;
+    }
+    const vals = entries.map(e => parseFloat(e[field]) || 0);
+    const toX = i => pad.left + (entries.length > 1 ? i * (iw/(entries.length-1)) : iw/2);
+    const toY = v => pad.top + ih - (v/maxVal)*ih;
+    let grid='', area='', line='', dots='', hits='', labels='';
+    [2,4,6,8,10].filter(v=>v<=maxVal).forEach(v => {
+      const y = toY(v);
+      grid += `<line x1="${pad.left}" y1="${y}" x2="${pad.left+iw}" y2="${y}" stroke="rgba(196,168,255,0.07)" stroke-width="1"/>`;
+      grid += `<text x="${pad.left-5}" y="${y+4}" text-anchor="end" fill="rgba(245,237,224,0.28)" font-family="DM+Sans,sans-serif" font-size="9">${v}</text>`;
+    });
+    area = `M ${toX(0)} ${toY(vals[0])}`;
+    line = `M ${toX(0)} ${toY(vals[0])}`;
+    for (let i=1; i<vals.length; i++) {
+      const x0=toX(i-1),y0=toY(vals[i-1]),x1=toX(i),y1=toY(vals[i]),cpx=(x0+x1)/2;
+      area += ` C ${cpx} ${y0} ${cpx} ${y1} ${x1} ${y1}`;
+      line += ` C ${cpx} ${y0} ${cpx} ${y1} ${x1} ${y1}`;
+    }
+    area += ` L ${toX(vals.length-1)} ${pad.top+ih} L ${toX(0)} ${pad.top+ih} Z`;
+    vals.forEach((v,i) => {
+      const x=toX(i),y=toY(v);
+      const d=entries[i].date;
+      const disp=new Date(d+'T12:00:00').toLocaleDateString('en-US',{month:'short',day:'numeric'});
+      dots  += `<circle cx="${x}" cy="${y}" r="4" fill="${color}" stroke="rgba(20,8,40,0.8)" stroke-width="1.5"/>`;
+      hits  += `<circle cx="${x}" cy="${y}" r="12" fill="transparent" data-tip="${disp}: ${v}${field==='sleep'?'h':'/10'}" onmouseenter="showTip(event,'${svgId}')" onmouseleave="hideTip('${svgId}')"/>`;
+    });
+    const step = Math.ceil(entries.length/6);
+    entries.forEach((e,i) => {
+      if (i%step!==0 && i!==entries.length-1) return;
+      const disp=new Date(e.date+'T12:00:00').toLocaleDateString('en-US',{month:'short',day:'numeric'});
+      labels += `<text x="${toX(i)}" y="${pad.top+ih+16}" text-anchor="middle" fill="rgba(245,237,224,0.28)" font-family="DM+Sans,sans-serif" font-size="9">${disp}</text>`;
+    });
+    const gid = 'g_'+svgId;
+    svg.innerHTML = `<defs><linearGradient id="${gid}" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="${color}" stop-opacity="0.22"/><stop offset="100%" stop-color="${color}" stop-opacity="0.02"/></linearGradient></defs>${grid}<path d="${area}" fill="url(#${gid})"/><path d="${line}" fill="none" stroke="${color}" stroke-width="2.5" stroke-linecap="round"/>${dots}${hits}${labels}`;
+  }
+
+  function showTip(e, svgId) {
+    const tip = document.getElementById(svgId.replace('Chart','Tooltip')) || document.getElementById('focusTooltip');
+    if (!tip) return;
+    tip.textContent = e.target.dataset.tip;
+    tip.classList.add('visible');
+    tip.style.left = (e.offsetX+12)+'px';
+    tip.style.top  = (e.offsetY-28)+'px';
+  }
+  function hideTip(svgId) {
+    const tip = document.getElementById(svgId.replace('Chart','Tooltip')) || document.getElementById('focusTooltip');
+    if (tip) tip.classList.remove('visible');
+  }
+
+  function renderCharts() {
+    const entries = getEntries(chartRange);
+    renderLine('focusChart',   entries, 'focus',    '#c4a8ff', 800, 200);
+    renderLine('dopamineChart',entries, 'dopamine', '#dfc4ff', 800, 160);
+    renderLine('energyChart',  entries, 'energy',   '#8fa882', 800, 160);
+    renderLine('anxietyChart', entries, 'anxiety',  '#9b6a8a', 800, 160);
+    renderLine('sleepChart',   entries, 'sleep',    '#b4a0d8', 800, 160, 12);
+    renderStats(entries);
+  }
+
+  function renderStats(entries) {
+    const all = JSON.parse(localStorage.getItem('adhd_entries') || '{}');
+    document.getElementById('statDays').textContent = Object.keys(all).length;
+    if (!entries.length) return;
+    const avg = (f) => (entries.reduce((s,e)=>s+(parseFloat(e[f])||0),0)/entries.length).toFixed(1);
+    document.getElementById('statAvgFocus').textContent    = avg('focus');
+    document.getElementById('statAvgDopamine').textContent = avg('dopamine');
+    document.getElementById('statAvgSleep').textContent    = avg('sleep');
+    const days=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+    const byDay = Array(7).fill(null).map(()=>[]);
+    Object.values(all).forEach(e => {
+      const d = new Date(e.date+'T12:00:00').getDay();
+      if (parseFloat(e.focus)) byDay[d].push(parseFloat(e.focus));
+    });
+    const avgs = byDay.map(a=>a.length?a.reduce((x,y)=>x+y,0)/a.length:-1);
+    const best = avgs.indexOf(Math.max(...avgs));
+    document.getElementById('statBestDay').textContent = avgs[best]>=0 ? days[best] : '—';
+  }
+
+  // ── WINS ──
+  function saveWin() {
+    const win = document.getElementById('winInput').value.trim();
+    if (!win) { showToast('Tell me the win first.'); return; }
+    const wins = JSON.parse(localStorage.getItem('adhd_wins') || '[]');
+    wins.unshift({ id:Date.now(), date:document.getElementById('winDate').value, win, category:document.getElementById('winCat').value });
+    localStorage.setItem('adhd_wins', JSON.stringify(wins));
+    document.getElementById('winInput').value = '';
+    document.getElementById('winCat').value = '';
+    showToast('Win logged. ✦');
+    renderWins();
+  }
+
+  function remindMe() {
+    const wins = JSON.parse(localStorage.getItem('adhd_wins') || '[]');
+    if (!wins.length) { showToast('Log some wins first.'); return; }
+    const w = wins[Math.floor(Math.random()*wins.length)];
+    const rem = document.getElementById('winReminder');
+    document.getElementById('reminderText').textContent = w.win;
+    rem.style.display = 'block';
+    rem.classList.add('fade-in');
+    setTimeout(()=>rem.style.display='none', 5000);
+  }
+
+  function renderWins() {
+    const wins = JSON.parse(localStorage.getItem('adhd_wins') || '[]');
+    document.getElementById('winsCount').textContent = wins.length + ' wins';
+    const list = document.getElementById('winList');
+    if (!wins.length) { list.innerHTML='<div class="empty-state">Every win you log is evidence against the hard days.</div>'; return; }
+    list.innerHTML = wins.map(w => {
+      const d = w.date ? new Date(w.date+'T12:00:00').toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'}) : '';
+      return `<div class="win-item"><div class="win-text">${w.win}</div><div class="win-meta"><span class="win-cat">${w.category||'Uncategorized'}</span><span>${d}</span></div></div>`;
+    }).join('');
+  }
+
+  // ── MY CALM ──
+  function addGrounding() {
+    const input = document.getElementById('groundingInput');
+    const val = input.value.trim();
+    if (!val) return;
+    const items = JSON.parse(localStorage.getItem('adhd_grounding') || '[]');
+    items.push({ id: Date.now(), text: val });
+    localStorage.setItem('adhd_grounding', JSON.stringify(items));
+    input.value = '';
+    renderGrounding();
+  }
+
+  function deleteGrounding(id) {
+    const items = JSON.parse(localStorage.getItem('adhd_grounding') || '[]').filter(i => i.id !== id);
+    localStorage.setItem('adhd_grounding', JSON.stringify(items));
+    renderGrounding();
+  }
+
+  function renderGrounding() {
+    const items = JSON.parse(localStorage.getItem('adhd_grounding') || '[]');
+    const list = document.getElementById('groundingList');
+    if (!list) return;
+    if (!items.length) { list.innerHTML = '<p style="font-family:sans-serif;font-size:0.85rem;color:var(--cream-dim);font-style:italic">Nothing added yet.</p>'; return; }
+    list.innerHTML = items.map(i => `
+      <div style="display:flex;align-items:center;justify-content:space-between;padding:0.55rem 0;border-bottom:1px solid rgba(196,168,255,0.08)">
+        <span style="font-family:sans-serif;font-size:0.9rem;color:var(--cream)">${i.text}</span>
+        <button onclick="deleteGrounding(${i.id})" style="background:none;border:none;color:rgba(245,237,224,0.25);cursor:pointer;font-size:0.9rem;padding:0.2rem 0.5rem;transition:color 0.2s" onmouseover="this.style.color='rgba(245,237,224,0.6)'" onmouseout="this.style.color='rgba(245,237,224,0.25)'">✕</button>
+      </div>`).join('');
+  }
+
+  function addWhatWorks() {
+    const input = document.getElementById('whatWorksInput');
+    const val = input.value.trim();
+    if (!val) return;
+    const items = JSON.parse(localStorage.getItem('adhd_whatworks') || '[]');
+    items.push({ id: Date.now(), text: val });
+    localStorage.setItem('adhd_whatworks', JSON.stringify(items));
+    input.value = '';
+    renderWhatWorks();
+  }
+
+  function deleteWhatWorks(id) {
+    const items = JSON.parse(localStorage.getItem('adhd_whatworks') || '[]').filter(i => i.id !== id);
+    localStorage.setItem('adhd_whatworks', JSON.stringify(items));
+    renderWhatWorks();
+  }
+
+  function renderWhatWorks() {
+    const items = JSON.parse(localStorage.getItem('adhd_whatworks') || '[]');
+    const list = document.getElementById('whatWorksList');
+    if (!list) return;
+    if (!items.length) { list.innerHTML = '<p style="font-family:sans-serif;font-size:0.85rem;color:var(--cream-dim);font-style:italic">Nothing added yet.</p>'; return; }
+    list.innerHTML = items.map(i => `
+      <div style="display:flex;align-items:center;justify-content:space-between;padding:0.55rem 0;border-bottom:1px solid rgba(196,168,255,0.08)">
+        <span style="font-family:sans-serif;font-size:0.9rem;color:var(--cream)">${i.text}</span>
+        <button onclick="deleteWhatWorks(${i.id})" style="background:none;border:none;color:rgba(245,237,224,0.25);cursor:pointer;font-size:0.9rem;padding:0.2rem 0.5rem;transition:color 0.2s" onmouseover="this.style.color='rgba(245,237,224,0.6)'" onmouseout="this.style.color='rgba(245,237,224,0.25)'">✕</button>
+      </div>`).join('');
+  }
+
+  function loadCalm() {
+    renderGrounding();
+    renderWhatWorks();
+    renderContacts();
+  }
+
+  function saveContact() {
+    const name = document.getElementById('cName').value.trim();
+    if (!name) { showToast('At least a name.'); return; }
+    const contacts = JSON.parse(localStorage.getItem('adhd_contacts') || '[]');
+    contacts.push({ id:Date.now(), name, rel:document.getElementById('cRel').value.trim(), phone:document.getElementById('cPhone').value.trim() });
+    localStorage.setItem('adhd_contacts', JSON.stringify(contacts));
+    ['cName','cRel','cPhone'].forEach(id=>document.getElementById(id).value='');
+    showToast('Contact saved. ✦');
+    renderContacts();
+  }
+
+  function renderContacts() {
+    const contacts = JSON.parse(localStorage.getItem('adhd_contacts') || '[]');
+    const list = document.getElementById('contactList');
+    if (!list) return;
+    if (!contacts.length) { list.innerHTML='<p style="font-family:sans-serif;font-size:0.85rem;color:var(--cream-dim);font-style:italic;margin-bottom:0.8rem">No contacts yet.</p>'; return; }
+    list.innerHTML = contacts.map(c=>`
+      <div style="display:grid;grid-template-columns:1fr 1fr auto;gap:0.6rem;align-items:center;padding:0.6rem 0;border-bottom:1px solid rgba(196,168,255,0.08)">
+        <div><div style="font-family:sans-serif;font-size:0.88rem;font-weight:600;color:var(--cream)">${c.name}</div><div style="font-size:0.75rem;color:var(--cream-dim)">${c.rel||''}</div></div>
+        <div style="font-family:sans-serif;font-size:0.85rem;color:var(--sage)">${c.phone||''}</div>
+        <button onclick="deleteContact(${c.id})" style="background:none;border:none;color:rgba(245,237,224,0.25);cursor:pointer;font-size:0.9rem;padding:0.2rem 0.4rem">✕</button>
+      </div>`).join('');
+  }
+
+  function deleteContact(id) {
+    const contacts = JSON.parse(localStorage.getItem('adhd_contacts')||'[]').filter(c=>c.id!==id);
+    localStorage.setItem('adhd_contacts', JSON.stringify(contacts));
+    renderContacts();
+  }
+
+  // ── EXPORT / IMPORT ──
+  function exportData() {
+    const data = {
+      entries:  JSON.parse(localStorage.getItem('adhd_entries')  || '{}'),
+      wins:     JSON.parse(localStorage.getItem('adhd_wins')     || '[]'),
+      contacts: JSON.parse(localStorage.getItem('adhd_contacts') || '[]'),
+      grounding: JSON.parse(localStorage.getItem('adhd_grounding') || '[]'),
+      whatworks: JSON.parse(localStorage.getItem('adhd_whatworks') || '[]'),
+      exportedAt: new Date().toISOString()
+    };
+    const d = new Date(), p = n => String(n).padStart(2,'0');
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(new Blob([JSON.stringify(data,null,2)],{type:'application/json'}));
+    a.download = `ever-after-adhd-tracker-backup-${d.getFullYear()}-${p(d.getMonth()+1)}-${p(d.getDate())}.json`;
+    a.click();
+    URL.revokeObjectURL(a.href);
+    showToast('Backup exported. ✦');
+  }
+
+  function importData() { document.getElementById('importFile').click(); }
+
+  function handleImport(e) {
+    const file = e.target.files[0]; if (!file) return;
+    const reader = new FileReader();
+    reader.onload = ev => {
+      try {
+        const data = JSON.parse(ev.target.result);
+        if (!confirm('This will replace your current data. Continue?')) return;
+        if (data.entries)  localStorage.setItem('adhd_entries',  JSON.stringify(data.entries));
+        if (data.wins)     localStorage.setItem('adhd_wins',     JSON.stringify(data.wins));
+        if (data.contacts) localStorage.setItem('adhd_contacts', JSON.stringify(data.contacts));
+        if (data.grounding) localStorage.setItem('adhd_grounding', JSON.stringify(data.grounding));
+        if (data.whatworks)  localStorage.setItem('adhd_whatworks',  JSON.stringify(data.whatworks));
+        renderYesterday(); renderWins();
+        showToast('Data restored. Welcome back. ✦');
+      } catch { showToast('That file did not work. Try again.'); }
+    };
+    reader.readAsText(file);
+    e.target.value = '';
+  }
+
+  // ── SEED SAMPLE DATA ──
+  function seedSampleData() {
+    // Always seed calm data on first load
+    if (!localStorage.getItem('adhd_contacts')) {
+      localStorage.setItem('adhd_contacts', JSON.stringify([
+        {id:1, name:"Jennifer",   rel:"Friend", phone:"(555) 218-4401"},
+        {id:2, name:"John",       rel:"Friend", phone:"(555) 347-9823"},
+        {id:3, name:"Dr. Reyes",  rel:"Doctor", phone:"(555) 482-0176"},
+        {id:4, name:"Mom",        rel:"Family", phone:"(555) 601-5534"},
+      ]));
+    }
+    if (!localStorage.getItem('adhd_grounding')) {
+      localStorage.setItem('adhd_grounding', JSON.stringify([
+        {id:1,  text:"Body doubling — open a video call, sit in a cafe, or work near someone"},
+        {id:2,  text:"Cold water on face or wrists — resets the nervous system fast"},
+        {id:3,  text:"Put on shoes — signals the brain it is time to do things"},
+        {id:4,  text:"2-minute timer — commit to just starting for 2 minutes"},
+        {id:5,  text:"Physical movement — stand up, walk to another room, shake it out"},
+        {id:6,  text:"Change environments — a different room or outside can unstick frozen mode"},
+        {id:7,  text:"Noise or music — lo-fi, brown noise, or a familiar playlist"},
+        {id:8,  text:"Say the task out loud — hearing it helps the brain make it real"},
+      ]));
+    }
+    if (!localStorage.getItem('adhd_whatworks')) {
+      localStorage.setItem('adhd_whatworks', JSON.stringify([
+        {id:1,  text:"Meds work better when taken on time. Protect the morning routine."},
+        {id:2,  text:"Hyperfocus is an asset when aimed correctly — keep a list of important tasks ready."},
+        {id:3,  text:"Rebound crashes are real. Build a low-demand buffer into 3-4pm."},
+        {id:4,  text:"Sleep is the biggest lever. Everything is harder without it."},
+        {id:5,  text:"Body doubling works. Use it without shame."},
+        {id:6,  text:"Task initiation is the hardest part. Starting is the whole job."},
+        {id:7,  text:"Emotional dysregulation is part of ADHD. Name it early before it escalates."},
+        {id:8,  text:"Dopamine dips are predictable. Track them and plan accordingly."},
+        {id:9,  text:"Boring tasks need external stimulation — podcast, music, timer games."},
+        {id:10, text:"Forgetting is not a character flaw. Externalize everything. Write it down."},
+      ]));
+    }
+    if (Object.keys(JSON.parse(localStorage.getItem('adhd_entries')||'{}')).length > 0) return;
+    const today = new Date(); const days = [];
+    for (let i=13; i>=0; i--) { const d=new Date(today); d.setDate(d.getDate()-i); const p=n=>String(n).padStart(2,'0'); days.push(`${d.getFullYear()}-${p(d.getMonth()+1)}-${p(d.getDate())}`); }
+    const E = JSON.stringify;
+    const entries = {};
+    [[0,4,3,3,5,8,5,"Yes — on time","Worked partially — wore off early","frozen","dragging","Took my meds","One hour at a time","Rough start. Could not get going until afternoon."],
+     [1,3,2,2,4,7,4.5,"No — forgot","Not much effect today","frozen","missing","Survived.","Tomorrow take meds first thing","Forgot meds. Lost the whole morning to scrolling."],
+     [2,6,5,6,6,5,7,"Yes — on time","Worked well — clear and focused","slow","normal","Replied to three emails","Keep this momentum","Slow start but got into a flow by 11am."],
+     [3,8,7,8,7,3,7.5,"Yes — on time","Worked well — clear and focused","flowing","vanished","Finished a project I had been avoiding","Protect tomorrow morning","Best day in weeks. Time disappeared. The good kind."],
+     [4,3,2,3,3,8,5,"Yes — late","Worked partially — wore off early","frozen","fragmented","Got dressed","Just exist","Crash. Everything felt impossible."],
+     [5,4,3,4,4,6,9,"Yes — on time","Not much effect today","slow","dragging","Showered on a hard day","Rest is not failing","Slept too much yesterday. Groggy all day."],
+     [6,6,6,7,6,4,7,"Yes — on time","Worked well — clear and focused","flowing","normal","Made a real meal","One thing at a time","Decent day. Body doubling helped a lot."],
+     [7,5,5,5,4,7,6.5,"Yes — on time","Worked partially — wore off early","slow","fragmented","Recognized a spiral before it got bad","Pause before reacting","Dysregulated in the afternoon. Caught it early though."],
+     [8,7,6,8,7,3,7.5,"Yes — on time","Worked well — clear and focused","flowing","vanished","Finished something creative","Stay in the zone","Hyperfocus hit at 2pm. Rode it."],
+     [9,4,4,4,4,7,5.5,"Yes — late","Rebound crash this afternoon","slow","fragmented","Did not cancel therapy","Show up","Took meds late. Could feel the rebound by 3pm."],
+     [10,7,7,8,7,3,7,"Yes — on time","Worked well — clear and focused","flowing","normal","Had a real conversation without losing the thread","Let people in","Good therapy day. Felt present."],
+     [11,4,3,4,4,6,6,"Yes — on time","Worked partially — wore off early","slow","dragging","Got through a hard meeting","Rest tonight","Low day. Scraped through."],
+     [12,7,6,7,7,2,8,"Yes — on time","Worked well — clear and focused","flowing","normal","Slept a full night","Notice what is working","Rested. Everything worked better. Not a coincidence."],
+     [13,6,6,7,6,3,7,"Yes — on time","Worked well — clear and focused","flowing","normal","Two weeks of logging","Keep showing up","Seeing patterns now. The dopamine dips are real and predictable."]
+    ].forEach(([i,focus,energy,dopamine,mood,anxiety,sleep,medTaken,medEffect,initState,timeBlind,win,intent,notes]) => {
+      entries[days[i]] = {date:days[i],focus,energy,dopamine,mood,anxiety,sleep,medTaken,medEffect,initState,timeBlind,win,intent,notes,savedAt:Date.now()};
+    });
+    localStorage.setItem('adhd_entries', E(entries));
+    localStorage.setItem('adhd_wins', E([
+      {id:1, date:days[0],  win:"Took meds even though I did not want to",         category:"Self-care"},
+      {id:2, date:days[1],  win:"Survived a no-med day without spiraling",          category:"Showed up"},
+      {id:3, date:days[2],  win:"Replied to three emails I had been avoiding",      category:"Task initiated"},
+      {id:4, date:days[3],  win:"Finished a project from start to finish",          category:"Focus win"},
+      {id:5, date:days[4],  win:"Got dressed and left the house",                   category:"Showed up"},
+      {id:6, date:days[5],  win:"Showered on a hard day",                           category:"Self-care"},
+      {id:7, date:days[6],  win:"Used body doubling and it actually worked",        category:"Focus win"},
+      {id:8, date:days[7],  win:"Caught a dysregulation spiral before it escalated",category:"Self-care"},
+      {id:9, date:days[8],  win:"Three hours of creative hyperfocus",               category:"Focus win"},
+      {id:10,date:days[9],  win:"Did not cancel therapy",                           category:"Showed up"},
+      {id:11,date:days[10], win:"Stayed present in a whole conversation",           category:"Relationship"},
+      {id:12,date:days[11], win:"Got through a hard meeting without shutting down", category:"Work"},
+      {id:13,date:days[12], win:"Slept a full night and felt it the next day",      category:"Self-care"},
+      {id:14,date:days[13], win:"Two weeks of logging. Showed up for my brain.",    category:"Showed up"},
+    ]));
+    localStorage.setItem('adhd_grounding', E([
+      {id:1,  text:"Body doubling — open a video call, sit in a cafe, or work near someone"},
+      {id:2,  text:"Cold water on face or wrists — resets the nervous system fast"},
+      {id:3,  text:"Put on shoes — signals the brain it is time to do things"},
+      {id:4,  text:"2-minute timer — commit to just starting for 2 minutes"},
+      {id:5,  text:"Physical movement — stand up, walk to another room, shake it out"},
+      {id:6,  text:"Change environments — a different room or outside can unstick frozen mode"},
+      {id:7,  text:"Noise or music — lo-fi, brown noise, or a familiar playlist"},
+      {id:8,  text:"Say the task out loud — hearing it helps the brain make it real"},
+    ]));
+    localStorage.setItem('adhd_whatworks', E([
+      {id:1,  text:"Meds work better when taken on time. Protect the morning routine."},
+      {id:2,  text:"Hyperfocus is an asset when aimed correctly — keep a list of important tasks ready."},
+      {id:3,  text:"Rebound crashes are real. Build a low-demand buffer into 3-4pm."},
+      {id:4,  text:"Sleep is the biggest lever. Everything is harder without it."},
+      {id:5,  text:"Body doubling works. Use it without shame."},
+      {id:6,  text:"Task initiation is the hardest part. Starting is the whole job."},
+      {id:7,  text:"Emotional dysregulation is part of ADHD. Name it early before it escalates."},
+      {id:8,  text:"Dopamine dips are predictable. Track them and plan accordingly."},
+      {id:9,  text:"Boring tasks need external stimulation — podcast, music, timer games."},
+      {id:10, text:"Forgetting is not a character flaw. Externalize everything. Write it down."},
+    ]));
+    localStorage.setItem('adhd_contacts', E([
+      {id:1, name:"Jennifer", rel:"Friend",  phone:""},
+      {id:2, name:"John",     rel:"Friend",  phone:""},
+      {id:3, name:"Dr. Re",   rel:"Doctor",  phone:""},
+    ]));
+  }
+
+  seedSampleData();
+  renderYesterday();
+</script>
+</body>
+</html>
